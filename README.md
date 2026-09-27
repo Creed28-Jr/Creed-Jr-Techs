@@ -10,6 +10,8 @@ python Specs.py
 
 The program greets the customer, handles multiple product questions in one conversation, and displays matching products with prices in Kenyan shillings (KSh) and their condition. When an item is unavailable, it says so and offers alternatives from the listed catalog. Use `buy <product> x<quantity>` to add an item, `cart` to review it, and `checkout` to pay or record an electronic payment for verification. Use `transactions` to view recent records, `review <feedback>` to submit feedback, `reviews` to view keyword-based review themes, and `directions` to request the shop address. Set `SHOP_ADDRESS` to a verified address to enable directions; without it, the program will say it is not configured.
 
+For tiered accessories, customers can ask for a `good`, `better`, or `best` option (for example, `best keyboard`). The assistant uses those rankings to choose or recommend an item; the customer-facing product table does not show tier labels.
+
 Cash sales and item details are saved locally in `transactions.db` between runs. M-Pesa and card selections save a transaction reference with `PENDING VERIFICATION` status; this standalone program does not connect to a payment provider or verify electronic payments. Complete electronic payments only through the official M-Pesa app or a card terminal, and never enter a PIN or card number into the program. The local transaction database is excluded from Git.
 
 Customer reviews are also saved locally. The `reviews` command groups them into simple keyword-based themes; it does not train or modify an AI model. Positive reviews receive "Thank you, we are here to satisfy our customers." Other reviews receive "We will check on that." Product-problem reviews are flagged for warranty follow-up, but exact warranty coverage and eligibility must be checked against the shop's policy.
@@ -18,14 +20,37 @@ Customer reviews are also saved locally. The `reviews` command groups them into 
 
 | Product | Price | Condition |
 | --- | ---: | --- |
-| Keyboard | KSh 1,500 | New |
-| Mouse | KSh 800 | New |
-| Flash disk | KSh 1,200 | New |
-| Headphones | KSh 2,500 | New |
-| USB cables | KSh 500 | New |
-| Wall charger | KSh 1,800 | New |
-| Phone case | KSh 1,000 | New |
-| Screen protector | KSh 700 | New |
+| Havit Wired Keyboard | KSh 1,200 | New |
+| Logitech Wireless Keyboard | KSh 3,500 | New |
+| Razer Mechanical Keyboard | KSh 14,500 | New |
+| Havit Wired Mouse | KSh 900 | New |
+| Logitech Wireless Mouse | KSh 4,800 | New |
+| Razer Wireless Gaming Mouse | KSh 14,500 | New |
+| SanDisk USB Flash Drive 32GB | KSh 1,000 | New |
+| Kingston USB Flash Drive 64GB | KSh 1,900 | New |
+| Samsung USB Flash Drive 128GB | KSh 4,500 | New |
+| JBL Wired Headphones | KSh 3,500 | New |
+| Sony Wireless Headphones | KSh 14,500 | New |
+| Bose Noise-Cancelling Headphones | KSh 52,000 | New |
+| USB-A to USB-C Cable | KSh 400 | New |
+| Anker USB-C to USB-C Cable | KSh 1,200 | New |
+| Belkin Braided USB-C Cable | KSh 2,500 | New |
+| Lightning Cable | KSh 700 | New |
+| Anker Lightning Cable | KSh 1,800 | New |
+| Belkin Braided Lightning Cable | KSh 3,200 | New |
+| Standard USB-A to Micro-USB Cable | KSh 350 | New |
+| Anker Reinforced Micro-USB Cable | KSh 900 | New |
+| Belkin Braided Micro-USB Cable | KSh 1,700 | New |
+| Generic 65W Laptop Charger | KSh 4,500 | New |
+| Dell 90W Laptop Charger | KSh 7,500 | New |
+| Anker 100W Laptop Charger | KSh 10,500 | New |
+| Clear TPU Screen Protector | KSh 500 | New |
+| Ceramic Film Screen Protector | KSh 900 | New |
+| Spigen Tempered Glass Screen Protector | KSh 2,200 | New |
+| Havit Silicone Phone Case | KSh 700 | New |
+| Spigen Clear Protective Phone Case | KSh 1,800 | New |
+| OtterBox Rugged Phone Case | KSh 6,500 | New |
+| Leather Flip Phone Case | KSh 2,500 | New |
 | Power bank | KSh 4,500 | New |
 | Wireless earbuds | KSh 3,500 | New |
 | Phone stand | KSh 1,200 | New |

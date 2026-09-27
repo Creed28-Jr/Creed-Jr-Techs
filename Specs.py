@@ -4,14 +4,37 @@ from pathlib import Path
 
 
 items = [
-	("Keyboard", 1500, "New", "accessory", ("keyboard",)),
-	("Mouse", 800, "New", "accessory", ("mouse",)),
-	("Flash disk", 1200, "New", "accessory", ("flash disk", "flash drive")),
-	("Headphones", 2500, "New", "accessory", ("headphones", "headphone")),
-	("USB cables", 500, "New", "accessory", ("usb cables", "usb cable")),
-	("Wall charger", 1800, "New", "accessory", ("wall charger", "charger")),
-	("Phone case", 1000, "New", "accessory", ("phone case", "case")),
-	("Screen protector", 700, "New", "accessory", ("screen protector",)),
+	("Havit Wired Keyboard", 1200, "New", "keyboard", ("havit wired keyboard", "good keyboard", "keyboard good", "keyboard", "keyboards"), "Good"),
+	("Logitech Wireless Keyboard", 3500, "New", "keyboard", ("logitech wireless keyboard", "better keyboard", "keyboard better", "keyboard", "keyboards"), "Better"),
+	("Razer Mechanical Keyboard", 14500, "New", "keyboard", ("razer mechanical keyboard", "best keyboard", "keyboard best", "keyboard", "keyboards"), "Best"),
+	("Havit Wired Mouse", 900, "New", "mouse", ("havit wired mouse", "good mouse", "mouse good", "mouse", "mice"), "Good"),
+	("Logitech Wireless Mouse", 4800, "New", "mouse", ("logitech wireless mouse", "better mouse", "mouse better", "mouse", "mice"), "Better"),
+	("Razer Wireless Gaming Mouse", 14500, "New", "mouse", ("razer wireless gaming mouse", "best mouse", "mouse best", "mouse", "mice"), "Best"),
+	("SanDisk USB Flash Drive 32GB", 1000, "New", "flash_disk", ("sandisk usb flash drive", "good flash drive", "flash drive good", "good flash disk", "flash disk good", "flash drive", "flash disk"), "Good"),
+	("Kingston USB Flash Drive 64GB", 1900, "New", "flash_disk", ("kingston usb flash drive", "better flash drive", "flash drive better", "better flash disk", "flash disk better", "flash drive", "flash disk"), "Better"),
+	("Samsung USB Flash Drive 128GB", 4500, "New", "flash_disk", ("samsung usb flash drive", "best flash drive", "flash drive best", "best flash disk", "flash disk best", "flash drive", "flash disk"), "Best"),
+	("JBL Wired Headphones", 3500, "New", "headphones", ("jbl wired headphones", "good headphones", "headphones good", "good headphone", "headphone good", "headphones", "headphone"), "Good"),
+	("Sony Wireless Headphones", 14500, "New", "headphones", ("sony wireless headphones", "better headphones", "headphones better", "better headphone", "headphone better", "headphones", "headphone"), "Better"),
+	("Bose Noise-Cancelling Headphones", 52000, "New", "headphones", ("bose noise-cancelling headphones", "best headphones", "headphones best", "best headphone", "headphone best", "headphones", "headphone"), "Best"),
+	("USB-A to USB-C Cable", 400, "New", "cable", ("usb-a to usb-c cable", "type-c cable good", "usb cable good", "good usb cable", "usb cable", "usb cables", "cable"), "Good"),
+	("Anker USB-C to USB-C Cable", 1200, "New", "cable", ("anker usb-c to usb-c cable", "type-c cable better", "usb cable better", "better usb cable", "usb cable", "usb cables", "cable"), "Better"),
+	("Belkin Braided USB-C Cable", 2500, "New", "cable", ("belkin braided usb-c cable", "type-c cable best", "usb cable best", "best usb cable", "usb cable", "usb cables", "cable"), "Best"),
+	("Lightning Cable", 700, "New", "cable", ("lightning cable good", "good lightning cable", "lightning cable", "usb cable", "usb cables", "cable"), "Good"),
+	("Anker Lightning Cable", 1800, "New", "cable", ("anker lightning cable", "lightning cable better", "better lightning cable", "lightning cable", "usb cable", "usb cables", "cable"), "Better"),
+	("Belkin Braided Lightning Cable", 3200, "New", "cable", ("belkin braided lightning cable", "lightning cable best", "best lightning cable", "lightning cable", "usb cable", "usb cables", "cable"), "Best"),
+	("Standard USB-A to Micro-USB Cable", 350, "New", "cable", ("standard micro-usb cable", "micro-usb cable good", "normal usb cable", "usb cable", "usb cables", "cable"), "Good"),
+	("Anker Reinforced Micro-USB Cable", 900, "New", "cable", ("anker micro-usb cable", "micro-usb cable better", "usb cable better", "usb cable", "usb cables", "cable"), "Better"),
+	("Belkin Braided Micro-USB Cable", 1700, "New", "cable", ("belkin micro-usb cable", "micro-usb cable best", "usb cable best", "usb cable", "usb cables", "cable"), "Best"),
+	("Generic 65W Laptop Charger", 4500, "New", "laptop_charger", ("generic 65w laptop charger", "good laptop charger", "laptop charger good", "laptop charger", "charger"), "Good"),
+	("Dell 90W Laptop Charger", 7500, "New", "laptop_charger", ("dell 90w laptop charger", "better laptop charger", "laptop charger better", "laptop charger", "charger"), "Better"),
+	("Anker 100W Laptop Charger", 10500, "New", "laptop_charger", ("anker 100w laptop charger", "best laptop charger", "laptop charger best", "laptop charger", "charger"), "Best"),
+	("Clear TPU Screen Protector", 500, "New", "protector", ("clear tpu screen protector", "good screen protector", "screen protector good", "screen protector"), "Good"),
+	("Ceramic Film Screen Protector", 900, "New", "protector", ("ceramic film screen protector", "ceramic screen protector", "better screen protector", "screen protector better", "screen protector"), "Better"),
+	("Spigen Tempered Glass Screen Protector", 2200, "New", "protector", ("spigen tempered glass screen protector", "tempered glass protector", "glass screen protector", "best screen protector", "screen protector best", "screen protector"), "Best"),
+	("Havit Silicone Phone Case", 700, "New", "phone_case", ("havit silicone phone case", "silicone phone case", "good phone case", "phone case good", "phone case", "case"), "Good"),
+	("Spigen Clear Protective Phone Case", 1800, "New", "phone_case", ("spigen clear protective phone case", "clear phone case", "better phone case", "phone case better", "phone case", "case"), "Better"),
+	("OtterBox Rugged Phone Case", 6500, "New", "phone_case", ("otterbox rugged phone case", "rugged phone case", "best phone case", "phone case best", "phone case", "case"), "Best"),
+	("Leather Flip Phone Case", 2500, "New", "phone_case", ("leather flip phone case", "flip phone case", "phone case", "case")),
 	("Power bank", 4500, "New", "accessory", ("power bank",)),
 	("Wireless earbuds", 3500, "New", "accessory", ("wireless earbuds", "earbuds")),
 	("Phone stand", 1200, "New", "accessory", ("phone stand",)),
@@ -64,6 +87,8 @@ items = [
 ]
 
 phone_categories = ("samsung", "iphone", "google", "oneplus", "huawei", "sony", "infinix", "tecno", "itel")
+accessory_categories = ("accessory", "keyboard", "mouse", "flash_disk", "headphones", "cable", "laptop_charger", "protector", "phone_case")
+product_tiers = {product[0]: product[5] for product in items if len(product) > 5}
 database_path = Path(os.environ.get("SHOP_DATABASE_PATH", str(Path(__file__).with_name("transactions.db"))))
 
 
@@ -216,10 +241,22 @@ def display_products(products):
 	print(f"{'Product':<{item_width}}  {'Price (KSh)':>{price_width}}  {'Condition':<9}")
 	print("-" * table_width)
 
-	for item, price, condition, _, _ in products:
+	for product in products:
+		item, price, condition = product[:3]
 		print(f"{item:<{item_width}}  {'KSh ' + format(price, ','):>{price_width}}  {condition:<9}")
 
 	print("=" * table_width)
+
+
+def filter_by_requested_tier(products, request):
+	requested_tier = next(
+		(tier for tier in ("Good", "Better", "Best") if tier.casefold() in request.split()),
+		None,
+	)
+	if requested_tier is None:
+		return products, None
+	tier_matches = [product for product in products if product_tiers.get(product[0]) == requested_tier]
+	return (tier_matches or products), requested_tier
 
 
 def display_cart(cart):
@@ -379,6 +416,7 @@ while True:
 			product for product in items
 			if any(alias in purchase_request for alias in product[4])
 		]
+		matching_items, _ = filter_by_requested_tier(matching_items, purchase_request)
 		if len(matching_items) == 1:
 			product = matching_items[0]
 			cart[product] = cart.get(product, 0) + quantity
@@ -396,13 +434,14 @@ while True:
 		for product in items
 		if any(alias in customer_request for alias in product[4])
 	]
+	requested_items, requested_tier = filter_by_requested_tier(requested_items, customer_request)
 	catalog_request_words = ("catalog", "list", "products", "items", "available", "sell")
 	show_catalog = any(word in customer_request for word in catalog_request_words)
 	has_model_number = any(character.isdigit() for character in customer_request)
 
 	if requested_items:
 		response_items = requested_items
-		response_message = "Here are the matching products from our catalog:"
+		response_message = f"Here is our {requested_tier.lower()} recommendation from the catalog:" if requested_tier and requested_items else "Here are the matching products from our catalog:"
 		if "iphone" in customer_request and "pro" in customer_request and not has_model_number:
 			response_items = [product for product in items if product[3] == "iphone"]
 	elif any(term in customer_request for term in ("fold", "flip", "foldable")):
@@ -457,7 +496,7 @@ while True:
 			response_items = [product for product in response_items if brand in product[0].casefold()]
 		response_message = "Here are the laptops in our catalog:"
 	elif "accessor" in customer_request:
-		response_items = [product for product in items if product[3] == "accessory"]
+		response_items = [product for product in items if product[3] in accessory_categories]
 		response_message = "Here are the accessories currently in our catalog:"
 	elif "phone" in customer_request and any(word in customer_request for word in ("phones", "all", "models")):
 		response_items = [product for product in items if product[3] in phone_categories]
@@ -475,8 +514,8 @@ while True:
 			response_items = [product for product in items if product[3] == "speaker"]
 		elif "laptop" in customer_request:
 			response_items = [product for product in items if product[3] == "laptop"]
-		elif any(word in customer_request for word in ("accessory", "charger", "case", "cable", "disk", "flash", "ear", "headphone", "power", "keyboard", "mouse", "protector", "stand")):
-			response_items = [product for product in items if product[3] == "accessory"]
+		elif any(word in customer_request for word in ("accessory", "charger", "case", "cable", "disk", "flash", "ear", "headphone", "power", "keyboard", "keyboards", "mouse", "mice", "protector", "stand", "lightning", "type-c", "micro-usb")):
+			response_items = [product for product in items if product[3] in accessory_categories]
 		else:
 			response_items = items
 
