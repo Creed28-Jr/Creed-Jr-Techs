@@ -42,13 +42,19 @@ items = [
 	("Samsung Galaxy S24", 80000, "New", "samsung", ("samsung galaxy s24", "samsung s24", "galaxy s24")),
 	("Samsung Galaxy S25", 95000, "New", "samsung", ("samsung galaxy s25", "samsung s25", "galaxy s25")),
 	("Samsung Galaxy S26", 110000, "New", "samsung", ("samsung galaxy s26", "samsung s26", "galaxy s26")),
+	("Samsung Galaxy A16", 18000, "New", "samsung", ("samsung galaxy a16", "samsung a16", "galaxy a16", "budget samsung"), "Entry-level"),
 	("iPhone 15 Pro", 120000, "New", "iphone", ("iphone 15 pro", "15 pro")),
 	("iPhone 16 Pro", 145000, "New", "iphone", ("iphone 16 pro", "16 pro")),
 	("iPhone 17 Pro", 170000, "New", "iphone", ("iphone 17 pro", "17 pro")),
+	("iPhone 16e", 90000, "New", "iphone", ("iphone 16e", "budget iphone"), "Entry-level"),
 	("Google Pixel 9 Pro XL", 150000, "New", "google", ("google pixel 9 pro xl", "pixel 9 pro xl")),
+	("Google Pixel 9a", 75000, "New", "google", ("google pixel 9a", "pixel 9a", "budget pixel"), "Entry-level"),
 	("OnePlus 13", 140000, "New", "oneplus", ("oneplus 13", "one plus 13")),
+	("OnePlus Nord CE4 Lite", 43000, "New", "oneplus", ("oneplus nord ce4 lite", "one plus nord ce4 lite", "budget oneplus"), "Entry-level"),
 	("Huawei Pura 70 Ultra", 175000, "New", "huawei", ("huawei pura 70 ultra", "pura 70 ultra")),
+	("Huawei nova 13i", 37000, "New", "huawei", ("huawei nova 13i", "nova 13i", "budget huawei"), "Entry-level"),
 	("Sony Xperia 1 VI", 165000, "New", "sony", ("sony xperia 1 vi", "xperia 1 vi")),
+	("Sony Xperia 10 VI", 60000, "New", "sony", ("sony xperia 10 vi", "xperia 10 vi", "budget sony"), "Entry-level"),
 	("iPhone Duo Foldable", 320000, "New", "iphone", ("iphone duo", "iphone fold", "foldable iphone")),
 	("Samsung Galaxy Z Fold7", 290000, "New", "samsung", ("samsung z fold7", "galaxy z fold7")),
 	("Samsung Galaxy Z Flip7", 175000, "New", "samsung", ("samsung z flip7", "galaxy z flip7")),
@@ -64,14 +70,17 @@ items = [
 	("Infinix NOTE 50 Pro+ 5G", 95000, "New", "infinix", ("infinix note 50 pro+ 5g", "note 50 pro+")),
 	("Infinix GT 30 Pro", 90000, "New", "infinix", ("infinix gt 30 pro", "gt 30 pro")),
 	("Infinix ZERO Flip", 115000, "New", "infinix", ("infinix zero flip", "zero flip")),
+	("Infinix SMART 9 HD", 12000, "New", "infinix", ("infinix smart 9 hd", "smart 9 hd", "budget infinix"), "Entry-level"),
 	("Tecno Phantom V Fold2", 155000, "New", "tecno", ("tecno phantom v fold2", "phantom v fold2")),
 	("Tecno Phantom V Flip2", 105000, "New", "tecno", ("tecno phantom v flip2", "phantom v flip2")),
 	("Tecno Camon 40 Premier 5G", 90000, "New", "tecno", ("tecno camon 40 premier 5g", "camon 40 premier")),
 	("Tecno Phantom X2 Pro", 125000, "New", "tecno", ("tecno phantom x2 pro", "phantom x2 pro")),
+	("Tecno SPARK 30C", 14000, "New", "tecno", ("tecno spark 30c", "spark 30c", "budget tecno"), "Entry-level"),
 	("itel S25 Ultra", 35000, "New", "itel", ("itel s25 ultra", "s25 ultra")),
-	("itel S24", 25000, "New", "itel", ("itel s24", "s24")),
+	("itel S24", 25000, "New", "itel", ("itel s24",)),
 	("itel RS4", 23000, "New", "itel", ("itel rs4", "rs4")),
 	("itel P65", 22000, "New", "itel", ("itel p65", "p65")),
+	("itel A90", 10000, "New", "itel", ("itel a90", "budget itel"), "Entry-level"),
 	("Samsung 55-inch Crystal UHD Smart TV", 125000, "New", "tv", ("samsung 55-inch crystal uhd smart tv", "samsung tv")),
 	("Hisense 55-inch QLED Smart TV", 155000, "New", "tv", ("hisense 55-inch qled smart tv", "hisense tv")),
 	("Vitron 55-inch Smart TV", 70000, "New", "tv", ("vitron 55-inch smart tv", "vitron tv")),
@@ -125,18 +134,27 @@ def initialize_database():
 				transaction_reference TEXT
 			)"""
 		)
+		transaction_columns = {
+			column[1] for column in connection.execute("PRAGMA table_info(transactions)")
+		}
+		if "discount_ksh" not in transaction_columns:
+			connection.execute(
+				"ALTER TABLE transactions ADD COLUMN discount_ksh INTEGER NOT NULL DEFAULT 0"
+			)
 
 
-def save_transaction(cart, payment_method, status, amount_received=None, reference=None):
-	total = sum(product[1] * quantity for product, quantity in cart.items())
+def save_transaction(cart, payment_method, status, amount_received=None, reference=None, discount=0):
+	subtotal = sum(product[1] * quantity for product, quantity in cart.items())
+	discount = min(discount, subtotal)
+	total = subtotal - discount
 	change = amount_received - total if amount_received is not None else None
 	with sqlite3.connect(database_path) as connection:
 		connection.execute("PRAGMA foreign_keys = ON")
 		cursor = connection.execute(
 			"""INSERT INTO transactions
-				(payment_method, status, total_ksh, amount_received_ksh, change_ksh, reference)
-				VALUES (?, ?, ?, ?, ?, ?)""",
-			(payment_method, status, total, amount_received, change, reference),
+				(payment_method, status, total_ksh, amount_received_ksh, change_ksh, reference, discount_ksh)
+					VALUES (?, ?, ?, ?, ?, ?, ?)""",
+				(payment_method, status, total, amount_received, change, reference, discount),
 		)
 		transaction_id = cursor.lastrowid
 		connection.executemany(
@@ -154,7 +172,7 @@ def save_transaction(cart, payment_method, status, amount_received=None, referen
 def display_transactions():
 	with sqlite3.connect(database_path) as connection:
 		transactions = connection.execute(
-			"""SELECT id, created_at, payment_method, status, total_ksh, reference
+			"""SELECT id, created_at, payment_method, status, total_ksh, reference, discount_ksh
 				FROM transactions ORDER BY id DESC LIMIT 10"""
 		).fetchall()
 		transaction_items = {
@@ -169,8 +187,10 @@ def display_transactions():
 		print("No saved transactions yet.")
 		return
 
-	for transaction_id, created_at, method, status, total, reference in transactions:
+	for transaction_id, created_at, method, status, total, reference, discount in transactions:
 		print(f"Transaction #{transaction_id} | {created_at} | {method} | {status} | KSh {total:,}")
+		if discount:
+			print(f"  Bargain discount: KSh {discount:,}")
 		for product, quantity in transaction_items[transaction_id]:
 			print(f"  {product} x {quantity}")
 		if reference:
@@ -249,17 +269,79 @@ def display_products(products):
 
 
 def filter_by_requested_tier(products, request):
-	requested_tier = next(
+	budget_terms = ("budget", "entry-level", "entry level", "affordable", "cheap", "cheaper", "low-cost", "low cost", "inexpensive", "inferior")
+	requested_tier = "Entry-level" if any(term in request for term in budget_terms) else next(
 		(tier for tier in ("Good", "Better", "Best") if tier.casefold() in request.split()),
 		None,
 	)
 	if requested_tier is None:
 		return products, None
 	tier_matches = [product for product in products if product_tiers.get(product[0]) == requested_tier]
-	return (tier_matches or products), requested_tier
+	return (tier_matches, requested_tier) if tier_matches else (products, None)
 
 
-def display_cart(cart):
+def find_matching_products(request, candidates=None):
+	matches = [
+		(len(alias), product)
+		for product in (items if candidates is None else candidates)
+		for alias in product[4]
+		if alias in request
+	]
+	if not matches:
+		return []
+	most_specific_match = max(alias_length for alias_length, _ in matches)
+	return list(dict.fromkeys(
+		product for alias_length, product in matches
+		if alias_length == most_specific_match
+	))
+
+
+def clean_product_request(request):
+	cleaned = request.casefold().strip(" ?!.,")
+	for prefix in (
+		"what is the price of ", "what's the price of ", "price of ", "price ",
+		"how much is ", "how much are ", "do you have ", "do you sell ", "do you stock ",
+		"is there ", "is the ", "is an ", "is a ",
+	):
+		if cleaned.startswith(prefix):
+			cleaned = cleaned[len(prefix):]
+			break
+	for suffix in (" out of stock", " not in stock", " sold out", " unavailable", " not available", " in stock", " available", " please"):
+		if cleaned.endswith(suffix):
+			cleaned = cleaned[:-len(suffix)].strip()
+	for article in ("a ", "an ", "the "):
+		if cleaned.startswith(article):
+			cleaned = cleaned[len(article):]
+			break
+	return cleaned.strip(" ?!.,")
+
+
+def refine_product_matches(products, original_request, clarification):
+	combined_matches = find_matching_products(f"{original_request} {clarification}", products)
+	combined_matches, requested_tier = filter_by_requested_tier(combined_matches, clarification)
+	if combined_matches and len(combined_matches) < len(products):
+		return combined_matches, requested_tier
+
+	words = [
+		word.strip(".,?!")
+		for word in clarification.casefold().split()
+		if len(word.strip(".,?!")) > 2
+		and word.strip(".,?!") not in ("the", "and", "for", "option", "please", "maybe", "price", "prices", "cost", "costs", "much", "how", "what", "what's", "would", "like", "see", "show", "tell", "want", "its")
+	]
+	word_matches = [
+		product for product in products
+		if all(
+			any(word in product[0].casefold() or word in alias for alias in product[4])
+			for word in words
+		)
+	] if words else []
+	word_matches, requested_tier = filter_by_requested_tier(word_matches, clarification)
+	if word_matches and len(word_matches) < len(products):
+		return word_matches, requested_tier
+	return products, requested_tier
+
+
+def display_cart(cart, discount=0):
 	if not cart:
 		print("Your cart is empty.")
 		return 0
@@ -277,14 +359,19 @@ def display_cart(cart):
 		total += line_amount
 		print(f"{product[0]:<{item_width}}  {quantity:>5}  {'KSh ' + format(price, ','):>14}  {'KSh ' + format(line_amount, ','):>14}")
 
+	discount = min(discount, total)
 	print("-" * line_width)
+	if discount:
+		print(f"{'SUBTOTAL':<{item_width + 9}}  {'KSh ' + format(total, ','):>29}")
+		print(f"{'BARGAIN DISCOUNT':<{item_width + 9}}  {'- KSh ' + format(discount, ','):>29}")
+		total -= discount
 	print(f"{'TOTAL':<{item_width + 9}}  {'KSh ' + format(total, ','):>29}")
 	print("=" * line_width)
 	return total
 
 
-def checkout(cart):
-	total = display_cart(cart)
+def checkout(cart, discount=0):
+	total = display_cart(cart, discount)
 	if total == 0:
 		return False
 
@@ -303,7 +390,7 @@ def checkout(cart):
 					continue
 
 				try:
-					transaction_id = save_transaction(cart, "Cash", "PAID", amount_received)
+					transaction_id = save_transaction(cart, "Cash", "PAID", amount_received, discount=discount)
 				except sqlite3.Error:
 					print("Cash received, but the transaction could not be saved. Please keep a manual record and contact the shop administrator.")
 					return "paid"
@@ -323,7 +410,7 @@ def checkout(cart):
 				print("A provider reference is required to save this as pending verification.")
 				continue
 			try:
-				transaction_id = save_transaction(cart, method_name, "PENDING VERIFICATION", reference=reference)
+				transaction_id = save_transaction(cart, method_name, "PENDING VERIFICATION", reference=reference, discount=discount)
 			except sqlite3.Error:
 				print("The transaction could not be saved. No payment was verified by this program.")
 				return None
@@ -343,6 +430,9 @@ print("Nice to hear that. Welcome to Creed Jr Techs. How may I interest you toda
 cart = {}
 sale_completed = False
 pending_payment = False
+discount_amount = 0
+pending_price_options = None
+pending_price_request = ""
 
 while True:
 	raw_request = input("> ").strip()
@@ -383,21 +473,34 @@ while True:
 			print("I'm sorry we couldn't help you find what you wanted today. We hope we can help next time. Thanks for visiting, please come again, and feel free to bring your friends!")
 		break
 	if customer_request == "cart":
-		display_cart(cart)
+		display_cart(cart, discount_amount)
+		continue
+	if any(term in customer_request for term in ("bargain", "discount", "reduce the price", "lower the price", "price cut")):
+		if not cart:
+			print("Sure, add the item you'd like first and I can apply up to KSh 1,000 off your cart.")
+		elif discount_amount:
+			print("I've already applied the maximum KSh 1,000 bargain to this cart.")
+		else:
+			subtotal = sum(product[1] * quantity for product, quantity in cart.items())
+			discount_amount = min(1000, subtotal)
+			print(f"I can take KSh {discount_amount:,} off this cart.")
+			display_cart(cart, discount_amount)
 		continue
 	if customer_request == "transactions":
 		display_transactions()
 		continue
 	if customer_request == "checkout":
-		checkout_result = checkout(cart)
+		checkout_result = checkout(cart, discount_amount)
 		if checkout_result == "paid":
 			sale_completed = True
 			cart.clear()
+			discount_amount = 0
 			print("Thanks for shopping with us. Have a blessed day!")
 			break
 		if checkout_result == "pending":
 			pending_payment = True
 			cart.clear()
+			discount_amount = 0
 			print("The order is saved, but it is not marked paid until the provider verifies the reference.")
 		continue
 	if customer_request.startswith(("buy ", "add ")):
@@ -412,34 +515,79 @@ while True:
 			print("Please choose a quantity greater than zero.")
 			continue
 
-		matching_items = [
-			product for product in items
-			if any(alias in purchase_request for alias in product[4])
-		]
+		matching_items = find_matching_products(purchase_request)
 		matching_items, _ = filter_by_requested_tier(matching_items, purchase_request)
+		while len(matching_items) > 1:
+			clarification = input("Sure, which brand, model, or Good/Better/Best option would you like to add? ").strip()
+			matching_items, _ = refine_product_matches(matching_items, purchase_request, clarification)
+			if len(matching_items) > 1:
+				print("I still have a few matches. Please specify the brand, model, or tier.")
 		if len(matching_items) == 1:
 			product = matching_items[0]
 			cart[product] = cart.get(product, 0) + quantity
 			print(f"Added {quantity} x {product[0]} to your cart.")
-			display_cart(cart)
-		elif matching_items:
-			print("Please add one exact product at a time. Matching products:")
-			display_products(matching_items)
-		else:
+			display_cart(cart, discount_amount)
+			print("You're welcome to bargain for up to KSh 1,000 off this cart.")
+		elif not matching_items:
 			print("That product is not in our catalog. Ask about a listed product to see its price and condition.")
 		continue
+	if pending_price_options is not None:
+		if customer_request in ("no", "cancel", "never mind"):
+			pending_price_options = None
+			pending_price_request = ""
+			print("No problem. Let me know if you'd like a price later.")
+			continue
+		if customer_request in ("all prices", "show all", "show all prices"):
+			for product in pending_price_options:
+				print(f"{product[0]}: KSh {product[1]:,}. Condition: {product[2]}.")
+			pending_price_options = None
+			pending_price_request = ""
+			continue
 
-	requested_items = [
-		product
-		for product in items
-		if any(alias in customer_request for alias in product[4])
-	]
+		affirmative_terms = ("yes", "yeah", "yep", "sure", "please", "show me", "tell me", "how much", "price")
+		if len(pending_price_options) == 1 and any(term in customer_request for term in affirmative_terms):
+			selected_product = pending_price_options[0]
+		else:
+			selected_items, _ = refine_product_matches(
+				pending_price_options,
+				pending_price_request,
+				customer_request,
+			)
+			selected_product = selected_items[0] if len(selected_items) == 1 else None
+
+		if selected_product:
+			print(f"{selected_product[0]} costs KSh {selected_product[1]:,}. Condition: {selected_product[2]}.")
+			pending_price_options = None
+			pending_price_request = ""
+		else:
+			option_names = ", ".join(product[0] for product in pending_price_options)
+			print(f"Which one would you like priced? {option_names}. You can also say 'show all prices'.")
+		continue
+
+	requested_items = find_matching_products(customer_request)
 	requested_items, requested_tier = filter_by_requested_tier(requested_items, customer_request)
+	unavailable_phrases = ("out of stock", "not in stock", "sold out", "unavailable", "not available")
+	reported_unavailable_items = requested_items if any(phrase in customer_request for phrase in unavailable_phrases) else []
+	if reported_unavailable_items:
+		requested_items = []
+	unavailable_request = False
 	catalog_request_words = ("catalog", "list", "products", "items", "available", "sell")
 	show_catalog = any(word in customer_request for word in catalog_request_words)
+	price_request_terms = ("price", "prices", "pricing", "how much", "cost", "costs", "rate", "rates")
+	asks_for_price = any(term in customer_request for term in price_request_terms)
 	has_model_number = any(character.isdigit() for character in customer_request)
+	display_product_table = True
 
-	if requested_items:
+	if reported_unavailable_items:
+		unavailable_categories = {product[3] for product in reported_unavailable_items}
+		response_items = [
+			product for product in items
+			if product[3] in unavailable_categories and product not in reported_unavailable_items
+		]
+		missing_names = ", ".join(product[0] for product in reported_unavailable_items)
+		response_message = f"Sorry, {missing_names} is currently marked out of stock. I can help you find a similar item we have available."
+		unavailable_request = True
+	elif requested_items:
 		response_items = requested_items
 		response_message = f"Here is our {requested_tier.lower()} recommendation from the catalog:" if requested_tier and requested_items else "Here are the matching products from our catalog:"
 		if "iphone" in customer_request and "pro" in customer_request and not has_model_number:
@@ -505,21 +653,127 @@ while True:
 		response_items = items
 		response_message = "Here is our current product catalog:"
 	else:
-		response_message = f"Sorry, we don't currently have '{customer_request}' in our catalog. Here are some available alternatives:"
-		if any(word in customer_request for word in ("phone", "samsung", "galaxy", "iphone", "apple", "mobile", "google", "pixel", "oneplus", "one plus", "huawei", "sony", "xperia", "infinix", "tecno", "itel")):
-			response_items = [product for product in items if product[3] in phone_categories]
-		elif any(word in customer_request for word in ("tv", "television")):
-			response_items = [product for product in items if product[3] == "tv"]
-		elif any(word in customer_request for word in ("speaker", "soundbar", "home theatre")):
-			response_items = [product for product in items if product[3] == "speaker"]
-		elif "laptop" in customer_request:
-			response_items = [product for product in items if product[3] == "laptop"]
-		elif any(word in customer_request for word in ("accessory", "charger", "case", "cable", "disk", "flash", "ear", "headphone", "power", "keyboard", "keyboards", "mouse", "mice", "protector", "stand", "lightning", "type-c", "micro-usb")):
-			response_items = [product for product in items if product[3] in accessory_categories]
+		missing_product = clean_product_request(customer_request)
+		product_terms = (
+			"phone", "smartphone", "mobile", "tablet", "ipad", "samsung", "galaxy", "iphone", "apple",
+			"google", "pixel", "oneplus", "one plus", "huawei", "sony", "xperia", "infinix", "tecno", "itel",
+			"hisense", "vitron", "tcl", "jbl", "dell", "hp", "lenovo", "razer", "havit", "logitech", "sandisk", "kingston", "anker", "belkin", "spigen", "otterbox", "bose",
+			"tv", "television", "speaker", "soundbar", "home theatre", "laptop", "computer", "printer",
+			"accessory", "charger", "case", "cable", "disk", "flash", "ear", "headphone", "power",
+			"keyboard", "keyboards", "mouse", "mice", "protector", "stand",
+		)
+		has_product_hint = any(term in customer_request for term in product_terms)
+		shop_terms = (
+			"phone", "smartphone", "mobile", "tablet", "ipad", "samsung", "galaxy", "iphone", "apple",
+			"google", "pixel", "oneplus", "one plus", "huawei", "sony", "xperia", "infinix", "tecno", "itel",
+			"hisense", "vitron", "tcl", "jbl", "dell", "hp", "lenovo", "razer", "havit", "logitech", "sandisk", "kingston", "anker", "belkin", "spigen", "otterbox", "bose",
+			"tv", "television", "speaker", "soundbar", "home theatre", "laptop", "computer", "printer",
+			"accessory", "charger", "case", "cable", "disk", "flash", "ear", "headphone", "power",
+			"keyboard", "keyboards", "mouse", "mice", "protector", "stand", "price", "cost", "buy",
+			"purchase", "sell", "stock", "available", "product", "model", "discount",
+		)
+		if asks_for_price and not has_product_hint:
+			response_message = "Here is our current price list:"
+			response_items = items
+		elif any(term in customer_request for term in shop_terms):
+			response_message = f"Sorry, we don't currently stock '{missing_product}'. I can help you find a similar product we do carry."
+			unavailable_request = True
 		else:
+			response_message = "I'm here to help with products from our shop, including phones, accessories, TVs, speakers, and laptops. Is there something from our selection you'd like to explore?"
+			response_items = []
+			display_product_table = False
+		if unavailable_request and any(word in customer_request for word in ("phone", "smartphone", "mobile", "tablet", "ipad", "samsung", "galaxy", "iphone", "apple", "google", "pixel", "oneplus", "one plus", "huawei", "sony", "xperia", "infinix", "tecno", "itel")):
+			response_items = [product for product in items if product[3] in phone_categories]
+		elif unavailable_request and any(word in customer_request for word in ("tv", "television")):
+			response_items = [product for product in items if product[3] == "tv"]
+		elif unavailable_request and any(word in customer_request for word in ("speaker", "soundbar", "home theatre")):
+			response_items = [product for product in items if product[3] == "speaker"]
+		elif unavailable_request and "laptop" in customer_request:
+			response_items = [product for product in items if product[3] == "laptop"]
+		elif unavailable_request and any(word in customer_request for word in ("accessory", "charger", "case", "cable", "disk", "flash", "ear", "headphone", "power", "keyboard", "keyboards", "mouse", "mice", "protector", "stand", "lightning", "type-c", "micro-usb")):
+			response_items = [product for product in items if product[3] in accessory_categories]
+		elif unavailable_request:
+			response_items = []
+			display_product_table = False
+			response_message += " We also carry phones, accessories, TVs, speakers, and laptops if you'd like to browse another category."
+		elif display_product_table and any(word in customer_request for word in ("phone", "smartphone", "mobile", "tablet", "ipad", "samsung", "galaxy", "iphone", "apple", "google", "pixel", "oneplus", "one plus", "huawei", "sony", "xperia", "infinix", "tecno", "itel")):
+			response_items = [product for product in items if product[3] in phone_categories]
+		elif display_product_table and any(word in customer_request for word in ("tv", "television")):
+			response_items = [product for product in items if product[3] == "tv"]
+		elif display_product_table and any(word in customer_request for word in ("speaker", "soundbar", "home theatre")):
+			response_items = [product for product in items if product[3] == "speaker"]
+		elif display_product_table and "laptop" in customer_request:
+			response_items = [product for product in items if product[3] == "laptop"]
+		elif display_product_table and any(word in customer_request for word in ("accessory", "charger", "case", "cable", "disk", "flash", "ear", "headphone", "power", "keyboard", "keyboards", "mouse", "mice", "protector", "stand", "lightning", "type-c", "micro-usb")):
+			response_items = [product for product in items if product[3] in accessory_categories]
+		elif display_product_table:
 			response_items = items
 
+	filtered_items, matched_tier = filter_by_requested_tier(response_items, customer_request)
+	if matched_tier and filtered_items:
+		response_items = filtered_items
+		requested_tier = matched_tier
+		if matched_tier == "Entry-level":
+			response_message = "Here are some more affordable phone options:"
+		else:
+			response_message = f"Here is our {matched_tier.lower()} recommendation:"
+
+	show_price_table = display_product_table and (asks_for_price or show_catalog)
+	if unavailable_request and display_product_table and not show_price_table:
+		if reported_unavailable_items:
+			missing_names = ", ".join(product[0] for product in reported_unavailable_items)
+			alternative_names = ", ".join(product[0] for product in response_items[:3])
+			response_message = f"Sorry, {missing_names} is out of stock. Similar models we have are {alternative_names}. Would you like the price of one?"
+		else:
+			alternative_names = ", ".join(product[0] for product in response_items[:3])
+			if len(response_items) > 3:
+				alternative_names += ", and other items from our catalog"
+			response_message = f"Sorry, we don't currently stock '{missing_product}'. We do have {alternative_names}. Would one of those work for you? Tell me which one and I'll give you its price."
+		if response_items:
+			pending_price_options = response_items
+			pending_price_request = customer_request
+	elif display_product_table and not show_price_table:
+		if requested_tier and response_items:
+			product_names = ", ".join(product[0] for product in response_items)
+			response_message = f"Our {requested_tier.lower()} option is {product_names}. Would you like to see its price?"
+			pending_price_options = response_items
+			pending_price_request = customer_request
+		elif len(response_items) == 1:
+			response_message = f"We carry {response_items[0][0]}. Would you like to see its price?"
+			pending_price_options = response_items
+			pending_price_request = customer_request
+		elif response_items:
+			response_message = "We carry several options for that. Which item would you like a price for?"
+			pending_price_options = response_items
+			pending_price_request = customer_request
+
 	print(response_message)
-	display_products(response_items)
-	print("Ask about another product, use 'buy <product> x<quantity>' to add it, or try 'directions' or 'review <your feedback>'.")
+	if display_product_table:
+		phone_options = [product for product in response_items if product[3] in phone_categories]
+		if phone_options:
+			phone_brands = tuple(dict.fromkeys(product[3] for product in phone_options))
+			brand_labels = {
+				"samsung": "Samsung Galaxy",
+				"iphone": "iPhone",
+				"google": "Google Pixel",
+				"oneplus": "OnePlus",
+				"huawei": "Huawei",
+				"sony": "Sony Xperia",
+				"infinix": "Infinix",
+				"tecno": "Tecno",
+				"itel": "itel",
+			}
+			if len(phone_brands) == 1:
+				brand_category = phone_brands[0]
+				related_phones = [
+					product for product in items
+					if product[3] == brand_category and product not in reported_unavailable_items
+				]
+				model_names = ", ".join(product[0] for product in related_phones)
+				print(f"{brand_labels[brand_category]} models we carry: {model_names}")
+			else:
+				brand_names = ", ".join(brand_labels[brand] for brand in phone_brands)
+				print(f"Phone brands we carry: {brand_names}")
+		if show_price_table:
+			display_products(response_items)
 

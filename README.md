@@ -8,13 +8,15 @@ Creed Jr Techs brings together accessories, premium phones, foldables, televisio
 python Specs.py
 ```
 
-The program greets the customer, handles multiple product questions in one conversation, and displays matching products with prices in Kenyan shillings (KSh) and their condition. When an item is unavailable, it says so and offers alternatives from the listed catalog. Use `buy <product> x<quantity>` to add an item, `cart` to review it, and `checkout` to pay or record an electronic payment for verification. Use `transactions` to view recent records, `review <feedback>` to submit feedback, `reviews` to view keyword-based review themes, and `directions` to request the shop address. Set `SHOP_ADDRESS` to a verified address to enable directions; without it, the program will say it is not configured.
+The program greets the customer and keeps a relaxed conversation. It shows a product table when the customer asks for prices or requests the catalog; a specific price question shows the matching item, while a general price request can show the full catalog. A product question without a price request asks whether the customer wants pricing. If several products match, the customer can specify a brand, model, or tier and receive that item's price as a short reply; `show all prices` lists all matching prices without a table. Phone requests first announce the related models or brands. If a listed model is reported out of stock, it says so and excludes that model from alternatives. If an item isn't in the catalog, it says it isn't stocked and offers relevant alternatives without inventing stock or prices. Ask for `budget`, `entry-level`, or `affordable` phones to see lower-priced models. When adding an ambiguous item with `buy <product> x<quantity>`, the assistant asks which brand, model, or tier the customer wants. Unrelated requests receive a polite redirect to the shop's product categories without displaying a table. Use `bargain` to request a one-time discount of up to KSh 1,000, `cart` to review the subtotal and discount, and `checkout` to pay or record an electronic payment for verification. Use `transactions` to view recent records, `review <feedback>` to submit feedback, `reviews` to view keyword-based review themes, and `directions` to request the shop address. Set `SHOP_ADDRESS` to a verified address to enable directions; without it, the program will say it is not configured.
 
-For tiered accessories, customers can ask for a `good`, `better`, or `best` option (for example, `best keyboard`). The assistant uses those rankings to choose or recommend an item; the customer-facing product table does not show tier labels.
+For tiered accessories, customers can ask for a `good`, `better`, or `best` option (for example, `best keyboard`). Tier rankings guide recommendations but are not shown as a table column. When adding a broad accessory request to the cart, the assistant asks for a brand or tier if needed. The bargain discount applies once per cart, up to KSh 1,000, and is saved with the transaction.
 
-Cash sales and item details are saved locally in `transactions.db` between runs. M-Pesa and card selections save a transaction reference with `PENDING VERIFICATION` status; this standalone program does not connect to a payment provider or verify electronic payments. Complete electronic payments only through the official M-Pesa app or a card terminal, and never enter a PIN or card number into the program. The local transaction database is excluded from Git.
+Cash sales, bargain discounts, and item details are saved locally in `transactions.db` between runs. M-Pesa and card selections save a transaction reference with `PENDING VERIFICATION` status; this standalone program does not connect to a payment provider or verify electronic payments. Complete electronic payments only through the official M-Pesa app or a card terminal, and never enter a PIN or card number into the program. The local transaction database is excluded from Git.
 
 Customer reviews are also saved locally. The `reviews` command groups them into simple keyword-based themes; it does not train or modify an AI model. Positive reviews receive "Thank you, we are here to satisfy our customers." Other reviews receive "We will check on that." Product-problem reviews are flagged for warranty follow-up, but exact warranty coverage and eligibility must be checked against the shop's policy.
+
+`inventory_status.md` is the RAG-readable source for availability replies and confirmed out-of-stock items. Update its status table only with verified inventory information; an item missing from that table has unknown availability, not confirmed stock.
 
 ## Product Catalog
 
@@ -58,13 +60,19 @@ Customer reviews are also saved locally. The `reviews` command groups them into 
 | Samsung Galaxy S24 | KSh 80,000 | New |
 | Samsung Galaxy S25 | KSh 95,000 | New |
 | Samsung Galaxy S26 | KSh 110,000 | New |
+| Samsung Galaxy A16 | KSh 18,000 | New |
 | iPhone 15 Pro | KSh 120,000 | New |
 | iPhone 16 Pro | KSh 145,000 | New |
 | iPhone 17 Pro | KSh 170,000 | New |
+| iPhone 16e | KSh 90,000 | New |
 | Google Pixel 9 Pro XL | KSh 150,000 | New |
+| Google Pixel 9a | KSh 75,000 | New |
 | OnePlus 13 | KSh 140,000 | New |
+| OnePlus Nord CE4 Lite | KSh 43,000 | New |
 | Huawei Pura 70 Ultra | KSh 175,000 | New |
+| Huawei nova 13i | KSh 37,000 | New |
 | Sony Xperia 1 VI | KSh 165,000 | New |
+| Sony Xperia 10 VI | KSh 60,000 | New |
 | iPhone Duo Foldable | KSh 320,000 | New |
 | Samsung Galaxy Z Fold7 | KSh 290,000 | New |
 | Samsung Galaxy Z Flip7 | KSh 175,000 | New |
@@ -80,14 +88,17 @@ Customer reviews are also saved locally. The `reviews` command groups them into 
 | Infinix NOTE 50 Pro+ 5G | KSh 95,000 | New |
 | Infinix GT 30 Pro | KSh 90,000 | New |
 | Infinix ZERO Flip | KSh 115,000 | New |
+| Infinix SMART 9 HD | KSh 12,000 | New |
 | Tecno Phantom V Fold2 | KSh 155,000 | New |
 | Tecno Phantom V Flip2 | KSh 105,000 | New |
 | Tecno Camon 40 Premier 5G | KSh 90,000 | New |
 | Tecno Phantom X2 Pro | KSh 125,000 | New |
+| Tecno SPARK 30C | KSh 14,000 | New |
 | itel S25 Ultra | KSh 35,000 | New |
 | itel S24 | KSh 25,000 | New |
 | itel RS4 | KSh 23,000 | New |
 | itel P65 | KSh 22,000 | New |
+| itel A90 | KSh 10,000 | New |
 | Samsung 55-inch Crystal UHD Smart TV | KSh 125,000 | New |
 | Hisense 55-inch QLED Smart TV | KSh 155,000 | New |
 | Vitron 55-inch Smart TV | KSh 70,000 | New |
