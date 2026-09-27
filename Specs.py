@@ -185,7 +185,10 @@ def submit_review(review_text):
 			"INSERT INTO reviews (review_text, topic, transaction_reference) VALUES (?, ?, ?)",
 			(review_text, topic, reference),
 		)
-	print("We will check on that.")
+	if topic == "positive":
+		print("Thank you, we are here to satisfy our customers.")
+	else:
+		print("We will check on that.")
 	if topic == "product_problem":
 		print("We can review the item's warranty. Please keep your receipt and share its transaction ID with shop staff. Coverage and eligibility follow the shop's warranty terms.")
 

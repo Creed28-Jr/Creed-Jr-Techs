@@ -12,7 +12,7 @@ The program greets the customer, handles multiple product questions in one conve
 
 Cash sales and item details are saved locally in `transactions.db` between runs. M-Pesa and card selections save a transaction reference with `PENDING VERIFICATION` status; this standalone program does not connect to a payment provider or verify electronic payments. Complete electronic payments only through the official M-Pesa app or a card terminal, and never enter a PIN or card number into the program. The local transaction database is excluded from Git.
 
-Customer reviews are also saved locally. The `reviews` command groups them into simple keyword-based themes; it does not train or modify an AI model. Reviews receive the response "We will check on that." Product-problem reviews are flagged for warranty follow-up, but exact warranty coverage and eligibility must be checked against the shop's policy.
+Customer reviews are also saved locally. The `reviews` command groups them into simple keyword-based themes; it does not train or modify an AI model. Positive reviews receive "Thank you, we are here to satisfy our customers." Other reviews receive "We will check on that." Product-problem reviews are flagged for warranty follow-up, but exact warranty coverage and eligibility must be checked against the shop's policy.
 
 ## Product Catalog
 
