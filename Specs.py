@@ -302,7 +302,7 @@ def checkout(cart):
 initialize_database()
 print("Hi, how are you?")
 customer_response = input()
-print("Thanks for sharing. What product can I help you find today?")
+print("Nice to hear that. Welcome to Creed Jr Techs. How may I interest you today?")
 cart = {}
 sale_completed = False
 pending_payment = False
