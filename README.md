@@ -1,4 +1,4 @@
-# Creed Jr Techs
+# Creed-Jr-Techs
 
 Creed Jr Techs brings together practical technology essentials and premium smartphones, from everyday accessories to Samsung Galaxy S-series phones and Pro iPhones. Clear prices and product information make it easy to find the right gear.
 
